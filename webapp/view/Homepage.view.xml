@@ -1,0 +1,73 @@
+<mvc:View controllerName="ndbs.training.travel_form.controller.Homepage" xmlns:mvc="sap.ui.core.mvc" displayBlock="true" xmlns="sap.m"
+	xmlns:l="sap.ui.layout" xmlns:f="sap.ui.layout.form" xmlns:core="sap.ui.core">
+	<Shell id="shell">
+		<App id="app">
+			<pages>
+				<Page id="page" title="{i18n>title}" showHeader="false">
+					<content>
+						<f:SimpleForm editable="true" layout="ResponsiveGridLayout" title="Travel Form" labelSpanXL="3" labelSpanL="3" labelSpanM="3"
+							labelSpanS="12" adjustLabelSpan="false" emptySpanXL="4" emptySpanL="4" emptySpanM="4" emptySpanS="0" columnsXL="1" columnsL="1" columnsM="1"
+							singleContainerFullSize="false">
+							<f:content>
+								<Label text="First Name"/>
+								<Input value="{globalJSONModel>/FirstName}"/>
+								<Label text="Last Name"/>
+								<Input value="{globalJSONModel>/LastName}"/>
+								<Label text="Personnel Number"/>
+								<Input value="{globalJSONModel>/PersonnelNo}"/>
+							</f:content>
+						</f:SimpleForm>
+						<Table items="{globalJSONModel>/Travels}">
+							<headerToolbar>
+								<OverflowToolbar>
+									<content>
+										<ToolbarSpacer/>
+										<Button icon="sap-icon://add" press="onAddNewLine"/>
+									</content>
+								</OverflowToolbar>
+							</headerToolbar>
+							<columns>
+								<Column>
+									<Text text="Departure"/>
+								</Column>
+								<Column>
+									<Text text="Arrival"/>
+								</Column>
+								<Column>
+									<Text text="Purpose"/>
+								</Column>
+								<Column>
+									<Text text="From"/>
+								</Column>
+								<Column>
+									<Text text="To"/>
+								</Column>
+							</columns>
+							<items>
+								<ColumnListItem>
+									<Input value="{globalJSONModel>Departure}"/>
+									<Input value="{globalJSONModel>Arrival}"/>
+									<Select selectedKey="{globalJSONModel>Purpose}">
+										<items>
+											<core:Item key="BUS" text="Business"/>
+											<core:Item key="OSM" text="On-site Meeting"/>
+											<core:Item key="VAC" text="Vacation"/>
+										</items>
+									</Select>
+									<DatePicker value="{globalJSONModel>From}" valueFormat="yyyyMMdd"/>
+									<DatePicker value="{globalJSONModel>To}" valueFormat="yyyyMMdd"/>
+								</ColumnListItem>
+							</items>
+						</Table>
+					</content>
+					<footer>
+						<OverflowToolbar>
+							<ToolbarSpacer/>
+							<Button text="Complete" type="Success" press="onComplete"/>
+						</OverflowToolbar>
+					</footer>
+				</Page>
+			</pages>
+		</App>
+	</Shell>
+</mvc:View>
