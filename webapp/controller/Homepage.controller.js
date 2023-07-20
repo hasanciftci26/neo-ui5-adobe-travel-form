@@ -1,15 +1,21 @@
 sap.ui.define([
-	"sap/ui/core/mvc/Controller"
-], function (Controller, xmlconverter) {
+	"sap/ui/core/mvc/Controller",
+	"sap/m/PDFViewer",
+	"sap/base/security/URLListValidator",
+	"sap/ui/model/json/JSONModel",
+	"sap/ui/core/Fragment"
+], function (Controller, PDFViewer, URLListValidator, JSONModel, Fragment) {
 	"use strict";
 
 	return Controller.extend("ndbs.training.travel_form.controller.Homepage", {
 		onInit: function () {
-
+			this._pdfViewer = new PDFViewer();
+			this.getView().addDependent(this._pdfViewer);
 		},
 		onComplete: async function () {
 			let oModel = this.getView().getModel("globalJSONModel"),
 				sFormName = "TRAVEL_FORM",
+				sTemplateName = "TRAVEL_FORM_XDP",
 				oPDFForm,
 				oPayload,
 				oData = oModel.getData(),
@@ -35,13 +41,13 @@ sap.ui.define([
 						}
 					}
 				},
-				sXMLData = this.OBJtoXML(oAdjustedData);
+				sXMLData = this._convertObjectToXML(oAdjustedData);
 
 			try {
-				oPDFForm = await this._getFormandToken(sFormName);
+				oPDFForm = await this._getFormandToken(sFormName, sTemplateName);
 
 				oPayload = {
-					"xdpTemplate": oPDFForm.data.templates[0].xdpTemplate,
+					"xdpTemplate": oPDFForm.data.xdpTemplate,
 					"xmlData": btoa(sXMLData),
 					"formType": "Print",
 					"formLocale": "de_DE",
@@ -59,25 +65,28 @@ sap.ui.define([
 						sap.ui.core.BusyIndicator.hide();
 						let oFormData = data;
 						var sBase64EncodedPDF = oFormData.fileContent;
-						
+
 						if (sBase64EncodedPDF === undefined) {
 							return;
 						}
-						
+
 						var sDecodedPdfContent = atob(sBase64EncodedPDF);
 						var aByteArray = new Uint8Array(sDecodedPdfContent.length)
-						
+
 						for (var i = 0; i < sDecodedPdfContent.length; i++) {
 							aByteArray[i] = sDecodedPdfContent.charCodeAt(i);
 						}
-						
+
 						var oBlob = new Blob([aByteArray.buffer], {
 							type: 'application/pdf'
 						});
-						
+
 						let sPDFUrl = URL.createObjectURL(oBlob);
-						window.open(sPDFUrl, '_blank');
-					},
+						URLListValidator.add("blob");
+						this._pdfViewer.setSource(sPDFUrl);
+						this._pdfViewer.setTitle("Travel Form");
+						this._pdfViewer.open();
+					}.bind(this),
 					error: function (data, textStatus, jqXHR) {
 						sap.m.MessageBox.show("No data posted");
 					}
@@ -110,6 +119,30 @@ sap.ui.define([
 			}
 			oModel.setData(oData);
 		},
+		onValueHelpRequested: function (oEvent) {
+			let oView = this.getView();
+
+			this._locationInput = oEvent.getSource();
+
+			if (!this._pDialog) {
+				this._pDialog = Fragment.load({
+					id: oView.getId(),
+					name: "ndbs.training.travel_form.fragments.ValueHelp",
+					controller: this
+				}).then(function (oDialog) {
+					oDialog.setModel(oView.getModel());
+					return oDialog;
+				});
+			}
+
+			this._pDialog.then(function (oDialog) {
+				oDialog.open();
+			}.bind(this));
+		},
+		onValueHelpDialogClose: function (oEvent) {
+			let sSelectedLocation = oEvent.getParameter("selectedItem").getTitle();
+			this._locationInput.setValue(sSelectedLocation);
+		},
 		_getPurposeText: function (sKey) {
 			let sText = "";
 
@@ -127,10 +160,10 @@ sap.ui.define([
 
 			return sText;
 		},
-		_getFormandToken: function (sFormName) {
+		_getFormandToken: function (sFormName, sTemplateName) {
 			return new Promise((resolve, reject) => {
 				$.ajax({
-					url: `/ads.restapi/v1/forms/${sFormName}`,
+					url: `/ads.restapi/v1/forms/${sFormName}/templates/${sTemplateName}`,
 					method: "GET",
 					type: "GET",
 					dataType: "json",
@@ -150,25 +183,25 @@ sap.ui.define([
 				});
 			});
 		},
-		OBJtoXML: function (obj) {
-			var xml = '';
-			for (var prop in obj) {
-				xml += obj[prop] instanceof Array ? '' : "<" + prop + ">";
-				if (obj[prop] instanceof Array) {
-					for (var array in obj[prop]) {
-						xml += "<" + prop + ">";
-						xml += this.OBJtoXML(new Object(obj[prop][array]));
-						xml += "</" + prop + ">";
+		_convertObjectToXML: function (oObject) {
+			let sXML = '';
+			for (var property in oObject) {
+				sXML += oObject[property] instanceof Array ? '' : "<" + property + ">";
+				if (oObject[property] instanceof Array) {
+					for (var array in oObject[property]) {
+						sXML += "<" + property + ">";
+						sXML += this._convertObjectToXML(new Object(oObject[property][array]));
+						sXML += "</" + property + ">";
 					}
-				} else if (typeof obj[prop] == "object") {
-					xml += this.OBJtoXML(new Object(obj[prop]));
+				} else if (typeof oObject[property] == "object") {
+					sXML += this._convertObjectToXML(new Object(oObject[property]));
 				} else {
-					xml += obj[prop];
+					sXML += oObject[property];
 				}
-				xml += obj[prop] instanceof Array ? '' : "</" + prop + ">";
+				sXML += oObject[property] instanceof Array ? '' : "</" + property + ">";
 			}
-			var xml = xml.replace(/<\/?[0-9]{1,}>/g, '');
-			return xml
+			sXML = sXML.replace(/<\/?[0-9]{1,}>/g, '');
+			return sXML;
 		}
 	});
 });

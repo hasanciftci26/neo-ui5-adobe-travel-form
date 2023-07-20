@@ -1,0 +1,12 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<SelectDialog noDataText="No Location Found" title="Select Location" search="onSearchLocation" searchPlaceholder="Search Location"
+		confirm="onValueHelpDialogClose" showClearButton="true">
+		<items>
+			<StandardListItem title="Heidelberg" description="Heidelberg" type="Active"/>
+			<StandardListItem title="Berlin" description="Berlin" type="Active"/>
+			<StandardListItem title="Hamburg" description="Hamburg" type="Active"/>
+			<StandardListItem title="Bielefeld" description="Bielefeld" type="Active"/>
+			<StandardListItem title="Istanbul" description="Istanbul" type="Active"/>
+		</items>
+	</SelectDialog>
+</core:FragmentDefinition>

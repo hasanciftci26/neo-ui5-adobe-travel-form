@@ -9,7 +9,7 @@
 							labelSpanS="12" adjustLabelSpan="false" emptySpanXL="4" emptySpanL="4" emptySpanM="4" emptySpanS="0" columnsXL="1" columnsL="1" columnsM="1"
 							singleContainerFullSize="false">
 							<f:content>
-								<Label text="First Name"/>
+								<Label text="{i18n>FirstName}"/>
 								<Input value="{globalJSONModel>/FirstName}"/>
 								<Label text="Last Name"/>
 								<Input value="{globalJSONModel>/LastName}"/>
@@ -45,8 +45,8 @@
 							</columns>
 							<items>
 								<ColumnListItem>
-									<Input value="{globalJSONModel>Departure}"/>
-									<Input value="{globalJSONModel>Arrival}"/>
+									<Input value="{globalJSONModel>Departure}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest="onValueHelpRequested"/>
+									<Input value="{globalJSONModel>Arrival}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest="onValueHelpRequested"/>
 									<Select selectedKey="{globalJSONModel>Purpose}">
 										<items>
 											<core:Item key="BUS" text="Business"/>
