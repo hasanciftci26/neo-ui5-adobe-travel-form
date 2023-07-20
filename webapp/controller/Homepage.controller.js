@@ -64,20 +64,20 @@ sap.ui.define([
 					success: function (data, textStatus, jqXHR) {
 						sap.ui.core.BusyIndicator.hide();
 						let oFormData = data;
-						var sBase64EncodedPDF = oFormData.fileContent;
+						let sBase64EncodedPDF = oFormData.fileContent;
 
 						if (sBase64EncodedPDF === undefined) {
 							return;
 						}
 
-						var sDecodedPdfContent = atob(sBase64EncodedPDF);
-						var aByteArray = new Uint8Array(sDecodedPdfContent.length)
+						let sDecodedPdfContent = atob(sBase64EncodedPDF);
+						let aByteArray = new Uint8Array(sDecodedPdfContent.length)
 
-						for (var i = 0; i < sDecodedPdfContent.length; i++) {
+						for (let i = 0; i < sDecodedPdfContent.length; i++) {
 							aByteArray[i] = sDecodedPdfContent.charCodeAt(i);
 						}
 
-						var oBlob = new Blob([aByteArray.buffer], {
+						let oBlob = new Blob([aByteArray.buffer], {
 							type: 'application/pdf'
 						});
 
@@ -94,7 +94,6 @@ sap.ui.define([
 			} catch (error) {
 				sap.m.MessageBox.error(error);
 			}
-
 		},
 		onAddNewLine: function () {
 			let oModel = this.getView().getModel("globalJSONModel"),
